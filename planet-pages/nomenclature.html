@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astronomical Nomenclature - TARS Exo-Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 50%, #2d1b69 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background Stars */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Twinkling Effect */
+        .twinkling {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="white" opacity="0.3"/><circle cx="30" cy="20" r="1" fill="white" opacity="0.5"/><circle cx="50" cy="15" r="1" fill="white" opacity="0.4"/><circle cx="70" cy="25" r="1" fill="white" opacity="0.6"/><circle cx="90" cy="30" r="1" fill="white" opacity="0.3"/><circle cx="20" cy="40" r="1" fill="white" opacity="0.5"/><circle cx="40" cy="45" r="1" fill="white" opacity="0.4"/><circle cx="60" cy="35" r="1" fill="white" opacity="0.7"/><circle cx="80" cy="50" r="1" fill="white" opacity="0.3"/><circle cx="15" cy="60" r="1" fill="white" opacity="0.5"/><circle cx="35" cy="65" r="1" fill="white" opacity="0.4"/><circle cx="55" cy="55" r="1" fill="white" opacity="0.6"/><circle cx="75" cy="70" r="1" fill="white" opacity="0.3"/><circle cx="95" cy="75" r="1" fill="white" opacity="0.5"/><circle cx="25" cy="80" r="1" fill="white" opacity="0.4"/><circle cx="45" cy="85" r="1" fill="white" opacity="0.6"/><circle cx="65" cy="90" r="1" fill="white" opacity="0.3"/><circle cx="85" cy="95" r="1" fill="white" opacity="0.5"/></svg>');
+            animation: move-twink-back 200s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes move-twink-back {
+            from {background-position: 0 0;}
+            to {background-position: -10000px 5000px;}
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+
+        .nav-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #00d4ff;
+            border-bottom: 2px solid #00d4ff;
+            padding-bottom: 10px;
+        }
+
+        .term-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .term-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #00d4ff;
+            transition: all 0.3s ease;
+        }
+
+        .term-card:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateX(5px);
+        }
+
+        .term-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .term-definition {
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .term-example {
+            color: #a0a0a0;
+            font-style: italic;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .category-header {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .demo-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .demo-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid #00d4ff;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .term-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="twinkling"></div>
+
+    <div class="container">
+        <header>
+            <h1>Astronomical Nomenclature</h1>
+            <p class="subtitle">Understanding the Language of Space Exploration</p>
+            <a href="../index.html" class="nav-button">← Back to Explorer</a>
+            <a href="proxima-b.html" class="nav-button">View Proxima b</a>
+        </header>
+
+        <div class="section">
+            <h2>Exoplanet Classification</h2>
+            <div class="category-header">Types of Exoplanets</div>
+            <div class="term-grid">
+                <div class="term-card">
+                    <div class="term-title">Terrestrial Planets</div>
+                    <div class="term-definition">
+                        Rocky planets primarily composed of silicate rocks and metals. They typically have solid surfaces and are similar in structure to Earth, Mercury, Venus, and Mars.
+                    </div>
+                    <div class="term-example">Example: Proxima b, Kepler-186f</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Gas Giants</div>
+                    <div class="term-definition">
+                        Massive planets composed primarily of hydrogen and helium. They lack solid surfaces and have thick atmospheres with extreme pressure and temperature conditions.
+                    </div>
+                    <div class="term-example">Example: Jupiter, Saturn, HD 209458 b</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Ice Giants</div>
+                    <div class="term-definition">
+                        Planets with substantial amounts of water, methane, and ammonia ices in addition to hydrogen and helium. They are smaller than gas giants but larger than terrestrial planets.
+                    </div>
+                    <div class="term-example">Example: Uranus, Neptune, Kepler-421 b</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Super-Earths</div>
+                    <div class="term-definition">
+                        Exoplanets with masses between 1-10 times that of Earth. They may be rocky, gaseous, or a combination of both. Their exact composition is often uncertain.
+                    </div>
+                    <div class="term-example">Example: Gliese 667 Cc, Kepler-442 b</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Mini-Neptunes</div>
+                    <div class="term-definition">
+                        Planets smaller than Neptune but larger than Earth, typically with thick hydrogen-helium atmospheres. They represent a transition between rocky and gaseous worlds.
+                    </div>
+                    <div class="term-example">Example: Kepler-11f, GJ 1214 b</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Hot Jupiters</div>
+                    <div class="term-definition">
+                        Gas giant planets that orbit extremely close to their host stars, typically with orbital periods of less than 10 days. Their temperatures can exceed 1000°C.
+                    </div>
+                    <div class="term-example">Example: 51 Pegasi b, HD 189733 b</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Habitable Zone Terms</h2>
+            <div class="term-grid">
+                <div class="term-card">
+                    <div class="term-title">Habitable Zone (HZ)</div>
+                    <div class="term-definition">
+                        The region around a star where conditions might be suitable for liquid water to exist on a planet's surface. Also called the "Goldilocks Zone" - not too hot, not too cold.
+                    </div>
+                    <div class="term-example">Earth is in the Sun's habitable zone</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Conservative Habitable Zone</div>
+                    <div class="term-definition">
+                        The inner and outer boundaries where Earth-like planets could maintain surface liquid water assuming Earth-like atmospheric conditions and composition.
+                    </div>
+                    <div class="term-example">Inner edge: 0.99 AU, Outer edge: 1.70 AU for Sun-like stars</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Optimistic Habitable Zone</div>
+                    <div class="term-definition">
+                        Extended boundaries that include regions where Venus and Mars might have had liquid water in the past, representing more generous estimates for habitability.
+                    </div>
+                    <div class="term-example">Inner edge: 0.75 AU, Outer edge: 1.77 AU for Sun-like stars</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Circumstellar Habitable Zone</div>
+                    <div class="term-definition">
+                        The traditional habitable zone around a single star. This is the most commonly referenced type of habitable zone in exoplanet research.
+                    </div>
+                    <div class="term-example">Kepler-186f orbits in its star's circumstellar habitable zone</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Detection Methods</h2>
+            <div class="term-grid">
+                <div class="term-card">
+                    <div class="term-title">Transit Method</div>
+                    <div class="term-definition">
+                        A detection method that measures the slight dimming of a star when a planet passes in front of it. This method can also reveal information about the planet's atmosphere.
+                    </div>
+                    <div class="term-example">Used by Kepler and TESS space telescopes</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Radial Velocity Method</div>
+                    <div class="term-definition">
+                        Detects exoplanets by measuring the tiny wobble of a star caused by gravitational pull from orbiting planets. The star's light is Doppler-shifted as it moves.
+                    </div>
+                    <div class="term-example">Used to discover 51 Pegasi b, the first exoplanet</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Direct Imaging</div>
+                    <div class="term-definition">
+                        Taking actual photographs of exoplanets by blocking the light from their host stars. This method works best for young, hot, and widely separated planets.
+                    </div>
+                    <div class="term-example">HR 8799 system with four directly imaged planets</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Gravitational Microlensing</div>
+                    <div class="term-definition">
+                        Uses Einstein's theory of general relativity to detect planets by observing how their gravity bends and magnifies light from background stars.
+                    </div>
+                    <div class="term-example">Particularly effective for finding planets far from their stars</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Stellar Classification</h2>
+            <div class="term-grid">
+                <div class="term-card">
+                    <div class="term-title">Spectral Type</div>
+                    <div class="term-definition">
+                        Classification system based on a star's temperature and spectral characteristics. From hottest to coolest: O, B, A, F, G, K, M. Each letter is subdivided with numbers 0-9.
+                    </div>
+                    <div class="term-example">Sun is G2, Proxima Centauri is M5.5</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Main Sequence Star</div>
+                    <div class="term-definition">
+                        Stars in the stable phase of their life cycle, fusing hydrogen into helium in their cores. About 90% of stars in our galaxy are main sequence stars.
+                    </div>
+                    <div class="term-example">Sun, Alpha Centauri A, Kepler-186</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Red Dwarf</div>
+                    <div class="term-definition">
+                        Small, cool stars of spectral type M or late K. They are the most common type of star in the galaxy and can live for trillions of years.
+                    </div>
+                    <div class="term-example">Proxima Centauri, TRAPPIST-1, Gliese 667 C</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Metallicity</div>
+                    <div class="term-definition">
+                        The proportion of elements heavier than hydrogen and helium in a star. Higher metallicity generally correlates with higher probability of planet formation.
+                    </div>
+                    <div class="term-example">Sun has metallicity [Fe/H] = 0.0 (by definition)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Orbital Mechanics</h2>
+            <div class="term-grid">
+                <div class="term-card">
+                    <div class="term-title">Orbital Period</div>
+                    <div class="term-definition">
+                        The time it takes for a planet to complete one full orbit around its star. Measured in days, years, or other time units.
+                    </div>
+                    <div class="term-example">Earth: 365.25 days, Proxima b: ~11.2 days</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Semi-Major Axis</div>
+                    <div class="term-definition">
+                        The average distance between a planet and its star. For circular orbits, this is simply the radius. For elliptical orbits, it's half the longest diameter.
+                    </div>
+                    <div class="term-example">Earth: 1 AU (149.6 million km), Proxima b: ~0.05 AU</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Eccentricity</div>
+                    <div class="term-definition">
+                        A measure of how elliptical an orbit is. 0 means perfectly circular, while values approaching 1 indicate highly elliptical orbits.
+                    </div>
+                    <div class="term-example">Earth: 0.017, Mercury: 0.206</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Inclination</div>
+                    <div class="term-definition">
+                        The tilt of a planet's orbital plane relative to a reference plane (usually the star's equatorial plane or the plane of the sky).
+                    </div>
+                    <div class="term-example">Earth: 0° (by definition), many exoplanets: 0-90°</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Planet Properties</h2>
+            <div class="term-grid">
+                <div class="term-card">
+                    <div class="term-title">Mass</div>
+                    <div class="term-definition">
+                        The amount of matter in a planet, typically measured in Earth masses (M⊕) or Jupiter masses (MJ). This affects gravity, atmosphere retention, and geological activity.
+                    </div>
+                    <div class="term-example">Earth: 1 M⊕, Jupiter: 317.8 M⊕, Proxima b: ~1.3 M⊕</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Radius</div>
+                    <div class="term-definition">
+                        The size of a planet, measured as the distance from its center to its surface. Often expressed as a multiple of Earth's radius (R⊕) or Jupiter's radius (RJ).
+                    </div>
+                    <div class="term-example">Earth: 1 R⊕, Jupiter: 11.2 R⊕, Proxima b: ~1.1 R⊕</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Density</div>
+                    <div class="term-definition">
+                        Mass divided by volume, indicating the compactness of a planet's material. Helps determine whether a planet is rocky, gaseous, or has significant water content.
+                    </div>
+                    <div class="term-example">Earth: 5.51 g/cm³, Jupiter: 1.33 g/cm³</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Surface Gravity</div>
+                    <div class="term-definition">
+                        The gravitational acceleration at a planet's surface, typically expressed as a multiple of Earth's gravity (g = 9.8 m/s²). Affects potential habitability and atmospheric retention.
+                    </div>
+                    <div class="term-example">Earth: 1 g, Moon: 0.17 g, Jupiter: 2.5 g</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Atmospheric Terms</h2>
+            <div class="term-grid">
+                <div class="term-card">
+                    <div class="term-title">Atmospheric Composition</div>
+                    <div class="term-definition">
+                        The chemical makeup of a planet's atmosphere, including percentages of different gases like nitrogen, oxygen, carbon dioxide, and water vapor.
+                    </div>
+                    <div class="term-example">Earth: 78% N₂, 21% O₂, 1% other gases</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Greenhouse Effect</div>
+                    <div class="term-definition">
+                        The warming of a planet's surface caused by gases in the atmosphere that trap heat radiation from the planet. Essential for maintaining habitable temperatures.
+                    </div>
+                    <div class="term-example">Venus experiences extreme greenhouse effect (462°C surface)</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Albedo</div>
+                    <div class="term-definition">
+                        The fraction of sunlight that a planet reflects back to space. Higher albedo means more reflection and cooler temperatures. Measured on a scale from 0 to 1.
+                    </div>
+                    <div class="term-example">Earth: 0.30, Moon: 0.12, Venus: 0.75</div>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-title">Scale Height</div>
+                    <div class="term-definition">
+                        The vertical distance over which atmospheric pressure decreases by a factor of e (≈2.718). Indicates how quickly the atmosphere thins with altitude.
+                    </div>
+                    <div class="term-example">Earth: ~8.5 km, Mars: ~11 km</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Interactive Examples</h2>
+            <div class="interactive-demo">
+                <h3>Try These Examples:</h3>
+                <button class="demo-button" onclick="showExample('habitable-zone')">Habitable Zone Calculator</button>
+                <button class="demo-button" onclick="showExample('planet-comparison')">Planet Size Comparison</button>
+                <button class="demo-button" onclick="showExample('detection-methods')">Detection Method Simulator</button>
+                
+                <div id="demo-result" class="demo-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create animated stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numberOfStars = 200;
+
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Interactive examples
+        function showExample(type) {
+            const resultDiv = document.getElementById('demo-result');
+            let content = '';
+
+            switch(type) {
+                case 'habitable-zone':
+                    content = `
+                        <h4>Habitable Zone Calculator</h4>
+                        <p><strong>For a Sun-like star:</strong></p>
+                        <ul style="text-align: left; color: #e0e0e0;">
+                            <li>Conservative HZ: 0.99 - 1.70 AU</li>
+                            <li>Optimistic HZ: 0.75 - 1.77 AU</li>
+                            <li>Earth is at 1.0 AU (perfect position!)</li>
+                        </ul>
+                        <p><strong>For a Red Dwarf (M-type star):</strong></p>
+                        <ul style="text-align: left; color: #e0e0e0;">
+                            <li>Habitable zone is much closer: ~0.05 - 0.15 AU</li>
+                            <li>Planets in HZ have short orbital periods (days to weeks)</li>
+                            <li>Example: Proxima b at 0.05 AU</li>
+                        </ul>
+                    `;
+                    break;
+
+                case 'planet-comparison':
+                    content = `
+                        <h4>Planet Size Comparison</h4>
+                        <div style="display: flex; justify-content: space-around; align-items: center; margin: 20px 0;">
+                            <div style="text-align: center;">
+                                <div style="width: 30px; height: 30px; background: #4ecdc4; border-radius: 50%; margin: 0 auto 10px;"></div>
+                                <small>Earth<br>(1 R⊕)</small>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="width: 35px; height: 35px; background: #ff6b6b; border-radius: 50%; margin: 0 auto 10px;"></div>
+                                <small>Proxima b<br>(1.1 R⊕)</small>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="width: 60px; height: 60px; background: #667eea; border-radius: 50%; margin: 0 auto 10px;"></div>
+                                <small>Neptune<br>(3.9 R⊕)</small>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="width: 100px; height: 100px; background: #764ba2; border-radius: 50%; margin: 0 auto 10px;"></div>
+                                <small>Jupiter<br>(11.2 R⊕)</small>
+                            </div>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 0.9em;">Sizes shown to scale relative to Earth</p>
+                    `;
+                    break;
+
+                case 'detection-methods':
+                    content = `
+                        <h4>Detection Method Effectiveness</h4>
+                        <div style="text-align: left; color: #e0e0e0;">
+                            <p><strong>Transit Method:</strong> Best for finding close-in planets</p>
+                            <div style="background: rgba(0,212,255,0.2); height: 20px; border-radius: 10px; margin: 10px 0;">
+                                <div style="background: #00d4ff; width: 75%; height: 100%; border-radius: 10px;"></div>
+                            </div>
+                            
+                            <p><strong>Radial Velocity:</strong> Good for massive planets</p>
+                            <div style="background: rgba(255,107,107,0.2); height: 20px; border-radius: 10px; margin: 10px 0;">
+                                <div style="background: #ff6b6b; width: 60%; height: 100%; border-radius: 10px;"></div>
+                            </div>
+                            
+                            <p><strong>Direct Imaging:</strong> Best for young, hot planets</p>
+                            <div style="background: rgba(78,205,196,0.2); height: 20px; border-radius: 10px; margin: 10px 0;">
+                                <div style="background: #4ecdc4; width: 25%; height: 100%; border-radius: 10px;"></div>
+                            </div>
+                            
+                            <p><strong>Microlensing:</strong> Good for distant planets</p>
+                            <div style="background: rgba(118,75,162,0.2); height: 20px; border-radius: 10px; margin: 10px 0;">
+                                <div style="background: #764ba2; width: 15%; height: 100%; border-radius: 10px;"></div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+
+            resultDiv.innerHTML = content;
+            resultDiv.style.display = 'block';
+        }
+
+        // Initialize stars on page load
+        createStars();
+
+        // Add smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

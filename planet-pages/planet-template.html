@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planet Name - TARS EXO EXPLORER</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .planet-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .planet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid #333;
+        }
+
+        .planet-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4a90e2, #e94b3c, #50c878);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(74, 144, 226, 0.5);
+        }
+
+        .back-button {
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .planet-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .planet-3d-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .planet-3d-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(74, 144, 226, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
+        }
+
+        .planet-info-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .info-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #4a90e2;
+            border-bottom: 2px solid #4a90e2;
+            padding-bottom: 5px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #4a90e2;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .planet-description {
+            line-height: 1.6;
+            color: #ddd;
+            font-size: 1rem;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 15px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #4a90e2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .model-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .control-button {
+            background: rgba(74, 144, 226, 0.8);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            background: rgba(74, 144, 226, 1);
+            transform: translateY(-1px);
+        }
+
+        .additional-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .section-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-card h3 {
+            color: #e94b3c;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .star-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: transparent;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .planet-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .planet-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .planet-title {
+                font-size: 2rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .planet-3d-container {
+                height: 300px;
+            }
+        }
+
+        .error-message {
+            background: rgba(233, 75, 60, 0.2);
+            border: 1px solid #e94b3c;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+
+        .model-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #aaa;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class="star-background" id="starBackground"></div>
+    
+    <div class="planet-page-container">
+        <div class="planet-header">
+            <h1 class="planet-title">Planet Name</h1>
+            <a href="../index.html" class="back-button">← Back to Gallery</a>
+        </div>
+
+        <div class="planet-content">
+            <div class="planet-3d-section">
+                <div class="planet-3d-container" id="planet3DContainer">
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loading-spinner"></div>
+                    </div>
+                    <div class="model-info">Click and drag to rotate • Scroll to zoom</div>
+                    <div class="model-controls">
+                        <button class="control-button" onclick="resetCamera()">Reset View</button>
+                        <button class="control-button" onclick="toggleRotation()">Toggle Auto-Rotate</button>
+                        <button class="control-button" onclick="toggleWireframe()">Wireframe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="planet-info-section">
+                <div class="info-section">
+                    <h3>Planet Overview</h3>
+                    <p class="planet-description" id="planetDescription">
+                        Loading planet description...
+                    </p>
+                </div>
+
+                <div class="info-section">
+                    <h3>Key Statistics</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Discovery Year</div>
+                            <div class="info-value" id="discoveryYear">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Orbital Period</div>
+                            <div class="info-value" id="orbitalPeriod">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Planet Radius</div>
+                            <div class="info-value" id="planetRadius">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Distance from Earth</div>
+                            <div class="info-value" id="distanceFromEarth">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Host Star</div>
+                            <div class="info-value" id="hostStar">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Discovery Method</div>
+                            <div class="info-value" id="discoveryMethod">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="additional-sections">
+            <div class="section-card">
+                <h3>🌟 Host Star Information</h3>
+                <div class="info-item">
+                    <div class="info-label">Star Type</div>
+                    <div class="info-value" id="starType">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Star Mass</div>
+                    <div class="info-value" id="starMass">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Star Radius</div>
+                    <div class="info-value" id="starRadius">Loading...</div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3>🔬 Scientific Details</h3>
+                <div class="info-item">
+                    <div class="info-label">Equilibrium Temperature</div>
+                    <div class="info-value" id="equilibriumTemp">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Orbital Eccentricity</div>
+                    <div class="info-value" id="orbitalEccentricity">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Insolation Flux</div>
+                    <div class="info-value" id="insolationFlux">Loading...</div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3>🌍 Habitability Assessment</h3>
+                <div class="info-item">
+                    <div class="info-label">Habitable Zone</div>
+                    <div class="info-value" id="habitableZone">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Surface Gravity</div>
+                    <div class="info-value" id="surfaceGravity">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Atmosphere Potential</div>
+                    <div class="info-value" id="atmospherePotential">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script>
+        // Global variables for 3D scene
+        let scene, camera, renderer, controls;
+        let planetModel, ambientLight, directionalLight;
+        let isRotating = true;
+        let isWireframe = false;
+
+        // Planet data - will be populated from URL parameters or default data
+        let planetData = {
+            name: "Planet Name",
+            description: "Loading planet description...",
+            modelPath: "../models/Proxima_b_1_13776.glb",
+            discoveryYear: "2020",
+            orbitalPeriod: "11.2 days",
+            planetRadius: "1.07 Earth radii",
+            distanceFromEarth: "4.24 light-years",
+            hostStar: "Proxima Centauri",
+            discoveryMethod: "Radial Velocity",
+            starType: "M-type main-sequence",
+            starMass: "0.12 Solar masses",
+            starRadius: "0.14 Solar radii",
+            equilibriumTemp: "234 K",
+            orbitalEccentricity: "0.11",
+            insolationFlux: "0.65 Earth flux",
+            habitableZone: "Potentially habitable",
+            surfaceGravity: "1.1 g",
+            atmospherePotential: "Unknown"
+        };
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            createStarBackground();
+            loadPlanetData();
+            init3DScene();
+            updatePlanetInfo();
+        });
+
+        // Create animated star background
+        function createStarBackground() {
+            const starContainer = document.getElementById('starBackground');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starContainer.appendChild(star);
+            }
+        }
+
+        // Load planet data from URL parameters or use defaults
+        function loadPlanetData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const planetName = urlParams.get('planet');
+            
+            if (planetName) {
+                // In a real implementation, you would fetch planet-specific data
+                // For now, we'll use the default data with the planet name
+                planetData.name = planetName.replace(/_/g, ' ');
+            }
+        }
+
+        // Update planet information on the page
+        function updatePlanetInfo() {
+            document.getElementById('planetDescription').textContent = planetData.description;
+            document.querySelector('.planet-title').textContent = planetData.name;
+            
+            // Update all info fields
+            const fields = [
+                'discoveryYear', 'orbitalPeriod', 'planetRadius', 'distanceFromEarth',
+                'hostStar', 'discoveryMethod', 'starType', 'starMass', 'starRadius',
+                'equilibriumTemp', 'orbitalEccentricity', 'insolationFlux',
+                'habitableZone', 'surfaceGravity', 'atmospherePotential'
+            ];
+            
+            fields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    element.textContent = planetData[field];
+                }
+            });
+        }
+
+        // Initialize 3D scene
+        function init3DScene() {
+            const container = document.getElementById('planet3DContainer');
+            
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000011);
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 0, 5);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.enableZoom = true;
+            controls.enablePan = false;
+
+            // Lighting
+            ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(5, 5, 5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+
+            // Load planet model
+            loadPlanetModel();
+
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+
+            // Start animation loop
+            animate();
+        }
+
+        // Load planet 3D model
+        function loadPlanetModel() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+
+            const loader = new THREE.GLTFLoader();
+            
+            loader.load(
+                planetData.modelPath,
+                function(gltf) {
+                    planetModel = gltf.scene;
+                    
+                    // Center and scale the model
+                    const box = new THREE.Box3().setFromObject(planetModel);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    
+                    planetModel.position.sub(center);
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 2 / maxDim;
+                    planetModel.scale.setScalar(scale);
+                    
+                    // Enable shadows
+                    planetModel.traverse(function(child) {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
+                    scene.add(planetModel);
+                    loadingOverlay.style.display = 'none';
+                },
+                function(progress) {
+                    console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+                },
+                function(error) {
+                    console.error('Error loading model:', error);
+                    loadingOverlay.innerHTML = '<div class="error-message">Failed to load 3D model</div>';
+                }
+            );
+        }
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (isRotating && planetModel) {
+                planetModel.rotation.y += 0.005;
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        function onWindowResize() {
+            const container = document.getElementById('planet3DContainer');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // Control functions
+        function resetCamera() {
+            camera.position.set(0, 0, 5);
+            controls.reset();
+        }
+
+        function toggleRotation() {
+            isRotating = !isRotating;
+            const button = event.target;
+            button.textContent = isRotating ? 'Stop Rotation' : 'Start Rotation';
+        }
+
+        function toggleWireframe() {
+            isWireframe = !isWireframe;
+            if (planetModel) {
+                planetModel.traverse(function(child) {
+                    if (child.isMesh && child.material) {
+                        child.material.wireframe = isWireframe;
+                    }
+                });
+            }
+            const button = event.target;
+            button.textContent = isWireframe ? 'Solid' : 'Wireframe';
+        }
+    </script>
+</body>
+</html>
