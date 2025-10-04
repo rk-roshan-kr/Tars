@@ -1,0 +1,42 @@
+# Ignored files and directories for TARS Exo-Explorer
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Node.js modules (if applicable)
+node_modules/
+
+# IDE-specific files
+.vscode/
+.idea/
+*.iml
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*~
+
+# Backup files
+*.bak
+*.swp
+
+# Environment variables
+.env
+.env.*
+
+# Local server files
+*.sqlite3
+
+# Example or test files that are not part of the main project
+index - Copy.html
+index - backup.html
+model-test.html
+
+# Any other files you wish to ignore

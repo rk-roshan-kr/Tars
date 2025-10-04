@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARS Exo-Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <style>
+        /* ==================
+           1. CSS STYLES
+           ================== */
+        :root {
+            --dark-blue: #0B0B2B;
+            --light-text: #EAEAEA;
+            --accent-color: #FFA500;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-blue);
+            color: var(--light-text);
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-image: linear-gradient(rgba(11, 11, 43, 0.7), rgba(11, 11, 43, 1)), url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero h1 {
+            font-size: 8rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+        }
+
+        .hero h2 {
+            font-size: 2rem;
+            font-weight: 400;
+            margin-top: -1rem;
+            color: var(--accent-color);
+        }
+
+        /* Planet Grid */
+        .planet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .planet-card {
+            height: 400px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #1a1a3a, #2d2d5a);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, height 0.5s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .planet-card:hover {
+            height: 500px;
+        }
+
+        .planet-3d-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            z-index: 5;
+        }
+
+        .card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            transition: transform 0.5s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .planet-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(255, 165, 0, 0.3);
+        }
+        
+        .planet-card.spinning {
+            animation: spin-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes spin-glow {
+            from {
+                box-shadow: 0 8px 30px rgba(255, 165, 0, 0.3);
+            }
+            to {
+                box-shadow: 0 12px 40px rgba(255, 165, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        .card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            transition: transform 0.5s ease;
+        }
+
+        .planet-card:hover .card-content {
+            transform: translateY(-20px);
+        }
+
+        .card-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease 0.2s, opacity 0.3s ease 0.2s;
+            opacity: 0;
+        }
+
+        .planet-card:hover .card-details {
+            max-height: 300px;
+            opacity: 1;
+        }
+
+        .planet-description {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .planet-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 0.8rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-item strong {
+            color: var(--accent-color);
+            font-size: 0.8rem;
+        }
+
+        .stat-item span {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.8rem;
+        }
+
+        /* Modal for Planet Details */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background-color: var(--dark-blue);
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-content h1 { color: var(--accent-color); margin-bottom: 1rem; }
+        .modal-content p { margin-bottom: 1rem; line-height: 1.6; }
+        .modal-content ul { list-style: none; margin-bottom: 1rem; }
+        .modal-content li { margin-bottom: 0.5rem; }
+        .modal-content strong { color: var(--accent-color); }
+        
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--light-text);
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero">
+        <h1>TARS</h1>
+        <h2>Exo-Explorer</h2>
+    </section>
+
+    <main class="planet-grid" id="planet-grid-container">
+        </main>
+
+    <div class="modal-overlay" id="modal-overlay">
+        </div>
+
+
+    <script>
+        // =======================
+        // 3. JAVASCRIPT LOGIC
+        // =======================
+
+        const planetsData = [
+          {
+            id: "proxima-b",
+            name: "Proxima b",
+            tagline: "Closest exoplanet to Earth in the habitable zone",
+            image: "https://exoplanets.nasa.gov/system/resources/detail_files/250 proxima-b.jpg",
+            description: "Proxima b is an exoplanet orbiting in the habitable zone of Proxima Centauri, the closest star to the Sun. It is one of the closest potentially habitable exoplanets to Earth, making it a prime target for future interstellar exploration.",
+            radius: "1.07 x Earth",
+            period: "11.2 days",
+            modelPath: "models/Proxima_b_1_13776.glb", // Your GLB file path
+            modelColor: 0x8fbc8f,
+            spinSpeed: 0.02 // Faster spin for hover effect
+          },
+          {
+            id: "kepler-186f",
+            name: "Kepler-186f",
+            tagline: "First Earth-sized world in a habitable zone",
+            image: "https://exoplanets.nasa.gov/system/resources/detail_files/100_kepler186f_artist_concept_2.jpg",
+            description: "Kepler-186f is the first validated Earth-size planet to orbit a distant star in the habitable zone—a range of distance from a star where liquid water might pool on the planet's surface. Its discovery confirms that planets the size of Earth exist in the habitable zones of other stars.",
+            radius: "1.17 x Earth",
+            period: "129.9 days",
+            modelPath: "kepler-186f.glb", // Add path to your GLB file
+            modelColor: 0x4a90e2,
+            spinSpeed: 0.01
+          },
+          {
+            id: "trappist-1e",
+            name: "TRAPPIST-1e",
+            tagline: "A promising rocky candidate for habitability",
+            image: "https://exoplanets.nasa.gov/system/resources/detail_files/232_trappist-1e-img.jpg",
+            description: "TRAPPIST-1e is a rocky, near-Earth-sized exoplanet orbiting within the habitable zone of the TRAPPIST-1 system. It is one of seven terrestrial planets in the system and is considered a prime candidate for atmospheric study.",
+            radius: "0.92 x Earth",
+            period: "6.1 days",
+            modelPath: "trappist-1e.glb", // Add path to your GLB file
+            modelColor: 0x8b4513,
+            spinSpeed: 0.01
+          }
+        ];
+
+        const gridContainer = document.getElementById('planet-grid-container');
+        const modalOverlay = document.getElementById('modal-overlay');
+
+        // Function to create a 3D planet
+        function create3DPlanet(container, planetData) {
+            try {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ 
+            antialias: true, 
+            alpha: true,
+            powerPreference: "high-performance",
+            stencil: false,
+            depth: true
+          });
+          
+          renderer.setSize(container.clientWidth, container.clientHeight);
+          renderer.setClearColor(0x000000, 0);
+          renderer.shadowMap.enabled = true;
+          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+          renderer.outputEncoding = THREE.sRGBEncoding;
+          renderer.toneMapping = THREE.ACESFilmicToneMapping;
+          renderer.toneMappingExposure = 1.2;
+          container.appendChild(renderer.domElement);
+                
+                let planet;
+                let isHovering = false;
+                let currentSpinSpeed = planetData.spinSpeed || 0.01;
+                
+                // Try to load GLB model first
+                if (planetData.modelPath && planetData.modelPath.includes('models/')) {
+                    const loader = new THREE.GLTFLoader();
+                    loader.load(
+                        planetData.modelPath,
+                        function (gltf) {
+                  const planet = gltf.scene;
+                  let meshCount = 0;
+                  let textureCount = 0;
+                  let firstMesh = null;
+                  
+                  planet.traverse(function (child) {
+                    if (child.isMesh) {
+                      meshCount++;
+                      if (!firstMesh) firstMesh = child;
+                      
+                      // Apply working materials from test page
+                      if (child.material) {
+                        if (child.material.map) {
+                          textureCount++;
+                          child.material.map.needsUpdate = true;
+                        }
+                        
+                        // Ensure visibility with proper material settings
+                        child.material.transparent = false;
+                        child.material.opacity = 1.0;
+                        child.material.side = THREE.FrontSide;
+                        child.material.needsUpdate = true;
+                        child.visible = true;
+                      }
+                    }
+                  });
+                  
+                  // Center and scale model for card (optimized from test page)
+                  if (firstMesh) {
+                    const box = new THREE.Box3().setFromObject(firstMesh);
+                    const size = box.getSize(new THREE.Vector3());
+                    const center = box.getCenter(new THREE.Vector3());
+                    
+                    // Center the model
+                    planet.position.sub(center);
+                    
+                    // Scale for card size - make it larger and more visible
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 2.5 / maxDim; // Larger scale for better visibility
+                    planet.scale.setScalar(scale);
+                    
+                    // Enable shadows on the planet mesh
+                    planet.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
+                    console.log(`Card model scaled: ${planetData.name} - Scale: ${scale.toFixed(2)}`);
+                  }
+                  
+                  scene.add(planet);
+                   planetData._planetMesh = planet; // Store reference for animation
+                   setupLightingAndControls();
+                    
+                   console.log(`✅ ${planetData.name} GLB model loaded successfully!`);
+                },
+                undefined,
+                function (error) {
+                  console.log('GLB loading failed, using procedural:', error);
+                  createProceduralPlanet();
+                }
+              );
+                } else {
+                    createProceduralPlanet();
+                }
+                
+                function createProceduralPlanet() {
+                    const geometry = new THREE.SphereGeometry(1.5, 64, 64);
+                    const material = new THREE.MeshPhongMaterial({ 
+                        color: planetData.modelColor || 0x4a90e2,
+                        shininess: 30,
+                        specular: 0x111111
+                    });
+                    planet = new THREE.Mesh(geometry, material);
+                    scene.add(planet);
+                    setupLightingAndControls();
+                }
+                
+                function setupLightingAndControls() {
+                    // Enhanced lighting for scientific visualization with SHADOWS
+                    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Brighter ambient
+                    scene.add(ambientLight);
+                    
+                    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+                    directionalLight.position.set(5, 5, 5);
+                    directionalLight.castShadow = true;
+                    directionalLight.shadow.mapSize.width = 2048;
+                    directionalLight.shadow.mapSize.height = 2048;
+                    directionalLight.shadow.camera.near = 0.5;
+                    directionalLight.shadow.camera.far = 50;
+                    scene.add(directionalLight);
+                    
+                    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+                    directionalLight2.position.set(-5, -3, 5);
+                    directionalLight2.castShadow = true;
+                    scene.add(directionalLight2);
+                    
+                    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+                    pointLight.position.set(-5, -5, -5);
+                    pointLight.castShadow = true;
+                    scene.add(pointLight);
+                    
+                    // Enable shadows on renderer
+                    renderer.shadowMap.enabled = true;
+                    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                    
+                    // Camera position
+                    camera.position.z = 5;
+                    
+                    // Mouse interaction with enhanced visibility
+                    let mouseX = 0;
+                    let mouseY = 0;
+                    let targetRotationX = 0;
+                    let targetRotationY = 0;
+                    let isSpinning = false;
+                    let spinStartTime = 0;
+                    
+                    // Single glint effect instead of background glow
+                    let glintTimeout;
+                    
+                    // Get the parent card element for hover detection
+                    const cardElement = container.closest('.planet-card');
+                    
+                    cardElement.addEventListener('mouseenter', () => {
+                        isHovering = true;
+                        isSpinning = true;
+                        spinStartTime = Date.now();
+                        // Speed is now handled in the animation loop - no need to set here
+                        
+                        // Single glint effect
+                        const glint = document.createElement('div');
+                        glint.style.cssText = `
+                            position: absolute;
+                            top: 0;
+                            left: -100%;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+                            transform: rotate(45deg);
+                            transition: left 0.6s ease;
+                            pointer-events: none;
+                            z-index: 10;
+                        `;
+                        container.appendChild(glint);
+                        
+                        // Trigger the glint animation
+                        setTimeout(() => {
+                            glint.style.left = '200%';
+                        }, 50);
+                        
+                        // Remove glint after animation
+                        glintTimeout = setTimeout(() => {
+                            if (glint.parentNode) {
+                                glint.remove();
+                            }
+                        }, 1000);
+                    });
+                    
+                    cardElement.addEventListener('mouseleave', () => {
+                        isHovering = false;
+                        isSpinning = false;
+                        // Don't reset rotation speed - let the base rotation continue
+                        if (glintTimeout) {
+                            clearTimeout(glintTimeout);
+                        }
+                    });
+                    
+                    cardElement.addEventListener('mousemove', (event) => {
+                        const rect = cardElement.getBoundingClientRect();
+                        mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                        mouseY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                        targetRotationY = mouseX * Math.PI * 0.8; // Only Y-axis rotation
+                    });
+                    
+                    // Animation loop with AGGRESSIVE spinning
+                    function animate() {
+                        requestAnimationFrame(animate);
+                        
+                        const planetMesh = planetData._planetMesh;
+                        if (planetMesh) {
+                            // Constant unidirectional spinning (Y-axis only)
+                            // Base rotation - ALWAYS spinning regardless of mouse position
+                            planetMesh.rotation.y += 0.003; // Fixed base rotation speed
+                            
+                            // Additional effects when hovering
+                            if (isHovering) {
+                                // Small speed boost on hover
+                                planetMesh.rotation.y += 0.001; // Extra rotation on hover
+                            }
+                            
+                            // Subtle mouse influence (very gentle) - always available
+                            planetMesh.rotation.y += (targetRotationY - planetMesh.rotation.y) * 0.01;
+                        } else {
+                            console.log('❌ Planet mesh not found!');
+                        }
+                        
+                        renderer.render(scene, camera);
+                    }
+                    
+                    animate();
+                    
+                    // Handle resize
+                    function handleResize() {
+                        const width = container.clientWidth;
+                        const height = container.clientHeight;
+                        camera.aspect = width / height;
+                        camera.updateProjectionMatrix();
+                        renderer.setSize(width, height);
+                    }
+                    
+                    window.addEventListener('resize', handleResize);
+                }
+                
+            } catch (error) {
+                console.error('Error creating 3D planet:', error);
+                container.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">3D Planet Error</div>';
+            }
+        }
+
+        // Function to render all planet cards
+        function renderPlanetCards() {
+            planetsData.forEach(planet => {
+                const card = document.createElement('div');
+                card.className = 'planet-card';
+                card.dataset.planetId = planet.id; // Store the id on the element
+                
+                card.innerHTML = `
+                    <div class="planet-3d-container" id="planet-3d-${planet.id}"></div>
+                    <div class="card-content">
+                        <h3>${planet.name}</h3>
+                        <div class="card-details">
+                            <p class="planet-description">${planet.description}</p>
+                            <div class="planet-stats">
+                                <div class="stat-item">
+                                    <strong>Orbital Period:</strong>
+                                    <span>${planet.period}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <strong>Planet Radius:</strong>
+                                    <span>${planet.radius}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                gridContainer.appendChild(card);
+                
+                // Create 3D planet after card is added to DOM
+                setTimeout(() => {
+                    const container = document.getElementById(`planet-3d-${planet.id}`);
+                    if (container) {
+                        create3DPlanet(container, planet);
+                    }
+                }, 100);
+            });
+        }
+
+        // Function to show the modal with a planet's details
+        function showPlanetModal(planetId) {
+            const planet = planetsData.find(p => p.id === planetId);
+            if (!planet) return;
+
+            modalOverlay.innerHTML = `
+                <div class="modal-content">
+                    <button class="close-button" id="close-modal">&times;</button>
+                    <h1>${planet.name}</h1>
+                    <p>${planet.description}</p>
+                    <ul>
+                        <li><strong>Orbital Period:</strong> ${planet.period}</li>
+                        <li><strong>Planet Radius:</strong> ${planet.radius}</li>
+                    </ul>
+                    </div>
+            `;
+            modalOverlay.classList.add('visible');
+
+            document.getElementById('close-modal').addEventListener('click', () => {
+                modalOverlay.classList.remove('visible');
+            });
+        }
+        
+        // Event listener for clicks on the grid (event delegation)
+        gridContainer.addEventListener('click', (event) => {
+            const card = event.target.closest('.planet-card');
+            if (card) {
+                showPlanetModal(card.dataset.planetId);
+            }
+        });
+        
+        // Hide modal if overlay is clicked
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) {
+                modalOverlay.classList.remove('visible');
+            }
+        });
+
+        // Initial render of the cards when the page loads
+        renderPlanetCards();
+    </script>
+
+</body>
+</html>
