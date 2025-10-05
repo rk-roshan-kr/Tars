@@ -194,60 +194,7 @@
             font-size: 0.8rem;
         }
 
-        /* Modal for Planet Details */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        
-        .modal-overlay.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
 
-        .modal-content {
-            background-color: var(--dark-blue);
-            padding: 2rem;
-            border-radius: 15px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.visible .modal-content {
-            transform: scale(1);
-        }
-        
-        .modal-content h1 { color: var(--accent-color); margin-bottom: 1rem; }
-        .modal-content p { margin-bottom: 1rem; line-height: 1.6; }
-        .modal-content ul { list-style: none; margin-bottom: 1rem; }
-        .modal-content li { margin-bottom: 0.5rem; }
-        .modal-content strong { color: var(--accent-color); }
-        
-        .close-button {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 2rem;
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: var(--light-text);
-        }
     </style>
 </head>
 <body>
@@ -260,8 +207,7 @@
     <main class="planet-grid" id="planet-grid-container">
         </main>
 
-    <div class="modal-overlay" id="modal-overlay">
-        </div>
+
 
 
     <script>
@@ -339,8 +285,8 @@
     
           },
           {
-            id: "Kepler-186-f",
-            name: "Kepler-186-f",
+            id: "Kepler-440-b",
+            name: "Kepler-440-b",
             tagline: "First Earth-sized world in a habitable zone",
             image: "https://exoplanets.nasa.gov/system/resources/detail_files/100_kepler186f_artist_concept_2.jpg",
             description: "Kepler-186-e is the first validated Earth-size planet to orbit a distant star in the habitable zone—a range of distance from a star where liquid water might pool on the planet's surface. Its discovery confirms that planets the size of Earth exist in the habitable zones of other stars.",
@@ -406,21 +352,23 @@
             spinSpeed: 0.02 // Faster spin for hover effect
           },
           {
-            id: "trappist-1e",
-            name: "TRAPPIST-1e",
+            id: "K2-18-b",
+            name: "K2-18-b",    
             tagline: "A promising rocky candidate for habitability",
             image: "https://exoplanets.nasa.gov/system/resources/detail_files/232_trappist-1e-img.jpg",
             description: "TRAPPIST-1e is a rocky, near-Earth-sized exoplanet orbiting within the habitable zone of the TRAPPIST-1 system. It is one of seven terrestrial planets in the system and is considered a prime candidate for atmospheric study.",
             radius: "0.92 x Earth",
             period: "6.1 days",
-            modelPath: "trappist-1e.glb", // Add path to your GLB file
-            modelColor: 0x8b4513,
-            spinSpeed: 0.01
+            modelPath: "models/kepler_22_b.glb", // Reusing Kepler-22 b model
+            modelColor: 0xFF0000, // Teal hue
+            spinSpeed: 0.02, // Faster spin for hover effect
+            modelScale: 4.0, // Custom scale for TRAPPIST-1 e
+            rotationY: -Math.PI / 4 // Rotate -45 degrees on Y-axis
           }
         ];
 
         const gridContainer = document.getElementById('planet-grid-container');
-        const modalOverlay = document.getElementById('modal-overlay');
+
 
         // Function to create a 3D planet
         function create3DPlanet(container, planetData) {
@@ -694,6 +642,22 @@
                 const card = document.createElement('div');
                 card.className = 'planet-card';
                 card.dataset.planetId = planet.id; // Store the id on the element
+                card.onclick = () => {
+                    const planetPagePath = `planet-pages/${planet.id}.html`;
+                    // Check if the file exists (this is a simplified client-side check)
+                    // A more robust solution would involve a server-side check or a pre-generated list of existing pages
+                    fetch(planetPagePath, { method: 'HEAD' })
+                        .then(response => {
+                            if (response.ok) {
+                                window.location.href = planetPagePath;
+                            } else {
+                                window.location.href = 'planet-pages/template.html'; // Redirect to template if page not found
+                            }
+                        })
+                        .catch(() => {
+                            window.location.href = 'planet-pages/template.html'; // Redirect to template on fetch error
+                        });
+                };
                 
                 card.innerHTML = `
                     <div class="planet-3d-container" id="planet-3d-${planet.id}"></div>
@@ -726,28 +690,7 @@
             });
         }
 
-        // Function to show the modal with a planet's details
-        function showPlanetModal(planetId) {
-            const planet = planetsData.find(p => p.id === planetId);
-            if (!planet) return;
 
-            modalOverlay.innerHTML = `
-                <div class="modal-content">
-                    <button class="close-button" id="close-modal">&times;</button>
-                    <h1>${planet.name}</h1>
-                    <p>${planet.description}</p>
-                    <ul>
-                        <li><strong>Orbital Period:</strong> ${planet.period}</li>
-                        <li><strong>Planet Radius:</strong> ${planet.radius}</li>
-                    </ul>
-                    </div>
-            `;
-            modalOverlay.classList.add('visible');
-
-            document.getElementById('close-modal').addEventListener('click', () => {
-                modalOverlay.classList.remove('visible');
-            });
-        }
         
         // Event listener for clicks on the grid (event delegation)
         gridContainer.addEventListener('click', (event) => {
@@ -758,11 +701,7 @@
         });
         
         // Hide modal if overlay is clicked
-        modalOverlay.addEventListener('click', (event) => {
-            if (event.target === modalOverlay) {
-                modalOverlay.classList.remove('visible');
-            }
-        });
+
 
         // Initial render of the cards when the page loads
         renderPlanetCards();
