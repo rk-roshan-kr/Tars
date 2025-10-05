@@ -336,7 +336,7 @@
             period: "6.1 days",
             modelPath: "models/Ross-128-b.glb", // Your GLB file path
             modelColor: 0x8fbc8f,
-            modelScale: 0.40,
+            modelScale: 0.50,
             spinSpeed: 0.02 // Faster spin for hover effect
           },
           {
@@ -348,8 +348,10 @@
             radius: "0.92 x Earth",
             period: "6.1 days",
             modelPath: "models/Teegarden-star-b.glb", // Your GLB file path
+            modelScale: 4.0,
             modelColor: 0x8fbc8f,
             spinSpeed: 0.02 // Faster spin for hover effect
+
           },
           {
             id: "K2-18-b",
@@ -360,7 +362,7 @@
             radius: "0.92 x Earth",
             period: "6.1 days",
             modelPath: "models/kepler_22_b.glb", // Reusing Kepler-22 b model
-            modelColor: 0xFF0000, // Teal hue
+            modelColor: 0xF0D8F6, // Teal hue
             spinSpeed: 0.02, // Faster spin for hover effect
             modelScale: 4.0, // Custom scale for TRAPPIST-1 e
             rotationY: -Math.PI / 4 // Rotate -45 degrees on Y-axis
@@ -692,13 +694,7 @@
 
 
         
-        // Event listener for clicks on the grid (event delegation)
-        gridContainer.addEventListener('click', (event) => {
-            const card = event.target.closest('.planet-card');
-            if (card) {
-                showPlanetModal(card.dataset.planetId);
-            }
-        });
+
         
         // Hide modal if overlay is clicked
 
