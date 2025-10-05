@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxima b - TARS Exo-Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <style>
+        :root {
+            --dark-blue: #0B0B2B;
+            --light-text: #EAEAEA;
+            --accent-color: #FFA500;
+            --card-bg: #1a1a3a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-blue);
+            color: var(--light-text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(11, 11, 43, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0B0B2B 0%, #1a1a3a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            max-width: 1400px;
+            padding: 0 2rem;
+            align-items: center;
+        }
+
+        .planet-info {
+            z-index: 2;
+        }
+
+        .planet-name {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-color), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .planet-tagline {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .planet-description {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .planet-description::first-letter {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .planet-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 165, 0, 0.2);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        /* 3D Model Container */
+        .model-container {
+            position: relative;
+            height: 600px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: radial-gradient(circle at center, rgba(255, 165, 0, 0.1) 0%, transparent 70%);
+            border: 2px solid rgba(255, 165, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        #planet-3d-model {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+        }
+
+        .model-controls {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--accent-color);
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 165, 0, 0.2);
+        }
+        
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .info-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .info-card h3 {
+            color: var(--accent-color);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 165, 0, 0.2);
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: var(--accent-color);
+            color: var(--dark-blue);
+            transform: translateX(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 165, 0, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+            
+            .planet-name {
+                font-size: 3rem;
+            }
+            
+            .model-container {
+                height: 400px;
+            }
+            
+            .back-button {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-bar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .hero-section {
+                padding-top: 6rem;
+            }
+            
+            .planet-name {
+                font-size: 2.5rem;
+            }
+            
+            .content-section {
+                padding: 2rem 1rem;
+            }
+            
+            .planet-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Timeline mobile styles */
+            .timeline::before {
+                left: 30px;
+            }
+            
+            .timeline-item {
+                flex-direction: row !important;
+                margin-left: 0;
+            }
+            
+            .timeline-date {
+                margin: 0 1rem 0 0;
+                min-width: 60px;
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+            
+            .timeline-content {
+                margin: 0;
+            }
+            
+            .timeline-content::before {
+                left: -20px !important;
+                border-right-color: var(--card-bg) !important;
+                border-left-color: transparent !important;
+            }
+        }
+        
+        /* Background Stars */
+        .stars, .twinkling {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .stars {
+            background: #000 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="stars" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.8"/><circle cx="50" cy="30" r="1.5" fill="white" opacity="0.6"/><circle cx="80" cy="70" r="1" fill="white" opacity="0.7"/><circle cx="20" cy="80" r="2" fill="white" opacity="0.5"/><circle cx="90" cy="20" r="1" fill="white" opacity="0.9"/></pattern></defs><rect width="100%" height="100%" fill="url(%23stars)"/></svg>');
+            background-size: 100px 100px;
+        }
+
+        .twinkling {
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="twinkle" width="200" height="200" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.4"><animate attributeName="opacity" values="0.4;1;0.4" dur="3s" repeatCount="indefinite"/></circle><circle cx="75" cy="60" r="1.5" fill="white" opacity="0.3"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="4s" repeatCount="indefinite"/></circle><circle cx="150" cy="120" r="1" fill="white" opacity="0.5"><animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/></circle></pattern></defs><rect width="100%" height="100%" fill="url(%23twinkle)"/></svg>');
+            background-size: 200px 200px;
+            animation: twinkle 10s linear infinite;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Discovery Timeline */
+        .discovery-section {
+            margin-top: 4rem;
+            padding: 2rem 0;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent-color), transparent);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-date {
+            background: var(--accent-color);
+            color: var(--dark-blue);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            margin: 0 2rem;
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex: 1;
+            margin: 0 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 165, 0, 0.2);
+        }
+
+        .timeline-content h4 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .timeline-content p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            transform: translateY(-50%);
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content::before {
+            left: -20px;
+            border-right-color: var(--card-bg);
+        }
+
+        .timeline-item:nth-child(even) .timeline-content::before {
+            right: -20px;
+            border-left-color: var(--card-bg);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Stars -->
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="../index.html" class="nav-logo">TARS Exo-Explorer</a>
+        <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#details">Details</a></li>
+            <li><a href="#explore">Explore</a></li>
+            <li><a href="nomenclature.html">📚 Nomenclature</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section with 3D Model -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="planet-info">
+                <h1 class="planet-name">Proxima b</h1>
+                <p class="planet-tagline">Our closest potentially habitable neighbor in the cosmos</p>
+                <p class="planet-description">
+                    Proxima b is an Earth-sized exoplanet orbiting within the habitable zone of Proxima Centauri, 
+                    the closest star to our Solar System at just 4.24 light-years away. This rocky world represents 
+                    humanity's best hope for finding life beyond Earth and serves as a prime target for future 
+                    interstellar exploration missions.
+                </p>
+                
+                <div class="planet-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Radius</div>
+                        <div class="stat-value">1.07 × Earth</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Orbital Period</div>
+                        <div class="stat-value">11.2 Earth days</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Distance from Earth</div>
+                        <div class="stat-value">4.24 light-years</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Discovery Year</div>
+                        <div class="stat-value">2016</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="model-container">
+                <div id="planet-3d-model"></div>
+                <div class="model-controls">
+                    🖱️ Click and drag to rotate • 🔍 Scroll to zoom • 🌍 <button id="compare-earth" class="compare-btn">Compare with Earth</button>
+                </div>
+                
+                <!-- Comparison Mode Overlay -->
+                <div id="comparison-mode" class="comparison-mode">
+                    <button class="close-comparison" onclick="closeComparison()">✕</button>
+                    <div class="comparison-container">
+                        <div class="comparison-planet">
+                            <h3>Proxima b</h3>
+                            <div id="proxima-comparison-model" class="comparison-model"></div>
+                            <div class="comparison-stats">
+                                <div class="comparison-stat">
+                                    <div class="comparison-stat-label">Radius</div>
+                                    <div class="comparison-stat-value">1.07 × Earth</div>
+                                </div>
+                                <div class="comparison-stat">
+                                    <div class="comparison-stat-label">Mass</div>
+                                    <div class="comparison-stat-value">1.17 × Earth</div>
+                                </div>
+                                <div class="comparison-stat">
+                                    <div class="comparison-stat-label">Orbital Period</div>
+                                    <div class="comparison-stat-value">11.2 days</div>
+                                </div>
+                                <div class="comparison-stat">
+                                    <div class="comparison-stat-label">Temperature</div>
+                                    <div class="comparison-stat-value">~234 K</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comparison-planet">
+                            <h3>Earth</h3>
+                            <div id="earth-comparison-model" class="comparison-model"></div>
+                            <div class="comparison-stats">
+                                <div class="comparison-stat">
+                                    <div class="comparison-stat-label">Radius</div>
+                                    <div class="comparison-stat-value">6,371 km</div>
+                                </div>
+                                <div class="comparison-stat">
+                                    <div class="comparison-stat-label">Mass</div>
+                                    <div class="comparison-stat-value">5.97 × 10²⁴ kg</div>
+                                </div>
+                                <div class="comparison-stat">
+                                    <div class="comparison-stat-label">Orbital Period</div>
+                                    <div class="comparison-stat-value">365.25 days</div>
+                                </div>
+                                <div class="comparison-stat">
+                                    <div class="comparison-stat-label">Temperature</div>
+                                    <div class="comparison-stat-value">~288 K</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Information Sections -->
+    <section class="content-section" id="overview">
+        <h2 class="section-title">Planetary Overview</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>🔍 Discovery Story</h3>
+                <p>Proxima b was discovered in 2016 by astronomers using the radial velocity method. The European Southern Observatory's HARPS instrument detected tiny wobbles in Proxima Centauri's motion, revealing the gravitational pull of this orbiting planet. This breakthrough made headlines worldwide as it represented the closest potentially habitable exoplanet to Earth.</p>
+            </div>
+            <div class="info-card">
+                <h3>🌍 Habitability Potential</h3>
+                <p>Proxima b orbits within the habitable zone of its red dwarf star, where temperatures could allow liquid water to exist on its surface. With a mass similar to Earth and potential for a rocky composition, it represents one of the most promising candidates for hosting life.</p>
+            </div>
+            <div class="info-card">
+                <h3>🌡️ Atmospheric Conditions</h3>
+                <p>While its atmosphere remains unconfirmed, theoretical models suggest Proxima b could retain a substantial atmosphere despite stellar wind from its active host star. The presence of an atmosphere would be crucial for habitability and surface temperature regulation.</p>
+            </div>
+            <div class="info-card">
+                <h3>⭐ Host Star</h3>
+                <p>Proxima Centauri is a red dwarf star, much smaller and cooler than our Sun. Its dim nature means the habitable zone is much closer to the star, resulting in Proxima b being tidally locked with one side always facing the star.</p>
+            </div>
+        </div>
+
+        <!-- Discovery History Section -->
+        <div class="discovery-section">
+            <h3 class="section-title">Discovery History</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">1915</div>
+                    <div class="timeline-content">
+                        <h4>Proxima Centauri Discovered</h4>
+                        <p>Scottish astronomer Robert Innes discovered Proxima Centauri, identifying it as the closest star to our Solar System at just 4.24 light-years away.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2013</div>
+                    <div class="timeline-content">
+                        <h4>First Hints of Planetary Motion</h4>
+                        <p>Initial observations suggested Proxima Centauri might have a companion, but data was inconclusive and required further investigation.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2016</div>
+                    <div class="timeline-content">
+                        <h4>Proxima b Officially Announced</h4>
+                        <p>On August 24, 2016, the Pale Red Dot campaign confirmed the existence of Proxima b using HARPS spectrograph data, making international headlines.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2016-Present</div>
+                    <div class="timeline-content">
+                        <h4>Ongoing Research & Future Missions</h4>
+                        <p>Continuous monitoring and proposed missions like Breakthrough Starshot aim to study this potentially habitable world in unprecedented detail.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section" id="details">
+        <h2 class="section-title">Detailed Characteristics</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>🪐 Physical Properties</h3>
+                <p>With a minimum mass of 1.17 Earth masses, Proxima b is likely a rocky planet with a radius approximately 1.07 times that of Earth. Its density suggests a composition similar to our planet, potentially including a metallic core and silicate mantle.</p>
+            </div>
+            <div class="info-card">
+                <h3>🌌 Orbital Dynamics</h3>
+                <p>Proxima b completes one orbit in just 11.2 Earth days at a distance of 0.05 AU from its star. This close orbit results in strong tidal forces that likely cause synchronous rotation, creating permanent day and night sides.</p>
+            </div>
+            <div class="info-card">
+                <h3>🛰️ Observation Challenges</h3>
+                <p>The planet's proximity to its bright host star makes direct observation extremely challenging. Future missions like the James Webb Space Telescope may be able to detect atmospheric signatures through transmission spectroscopy during transits.</p>
+            </div>
+            <div class="info-card">
+                <h3>🔭 Future Research</h3>
+                <p>Upcoming telescopes and proposed missions like Breakthrough Starshot aim to study Proxima b in detail. These efforts could reveal whether this nearby world harbors conditions suitable for life or even detect potential biosignatures.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Planet data for Proxima b
+        const planetData = {
+            name: "TRAPPIST-1 g",
+            modelPath: "../models/kepler_22_b.glb", // Reusing Kepler-22 b model
+            modelColor: 0x800080, // Purple hue
+            spinSpeed: 0.5, // Rotation speed
+            cameraDistance: 6,
+            modelScale: 4.0, // Custom scale for TRAPPIST-1 g
+            rotationY: Math.PI / 4 // Rotate 45 degrees on Y-axis
+        };
+
+        // Initialize 3D scene
+        function init3DModel() {
+            const container = document.getElementById('planet-3d-model');
+            if (!container) return;
+
+            // Scene setup
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(0x000000, 0);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            let planet;
+            let controls;
+
+            // Try to load GLB model first with better error handling
+            if (planetData.modelPath) {
+                const loader = new THREE.GLTFLoader();
+                loader.load(
+                    planetData.modelPath,
+                    function (gltf) {
+                        planet = gltf.scene;
+                        
+                        // Center and scale the model
+                        const box = new THREE.Box3().setFromObject(planet);
+                        const size = box.getSize(new THREE.Vector3());
+                        const maxDim = Math.max(size.x, size.y, size.z);
+                        const scale = (planetData.modelScale || 2.5) / maxDim;
+                        planet.scale.setScalar(scale);
+                        
+                        // Center the model
+                        const center = box.getCenter(new THREE.Vector3());
+                        planet.position.sub(center);
+                        
+                        // Enable shadows
+                        planet.traverse((child) => {
+                            if (child.isMesh) {
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+                                if (child.material) {
+                                    // Apply modelColor as a tint
+                                    if (planetData.modelColor) {
+                                        child.material.color.setHex(planetData.modelColor);
+                                    }
+                                    child.material.side = THREE.FrontSide;
+                                    child.material.needsUpdate = true;
+                                }
+                            }
+                        });
+
+                        // Set initial rotation
+                        planet.rotation.x = planetData.rotationX || 0;
+                        planet.rotation.y = planetData.rotationY || 0;
+                        planet.rotation.z = planetData.rotationZ || 0;
+                        
+                        scene.add(planet);
+                        setupLighting();
+                        console.log(`✅ ${planetData.name} GLB model loaded successfully!`);
+                    },
+                    function (progress) {
+                        console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+                    },
+                    function (error) {
+                        console.log('GLB loading failed, using procedural:', error);
+                        createProceduralPlanet();
+                    }
+                );
+            } else {
+                createProceduralPlanet();
+            }
+
+            function createProceduralPlanet() {
+                const geometry = new THREE.SphereGeometry(2, 64, 64);
+                
+                // Create a more realistic planet material
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: planetData.modelColor || 0x8fbc8f,
+                    shininess: 30,
+                    specular: 0x111111,
+                    transparent: false,
+                    side: THREE.FrontSide
+                });
+                
+                planet = new THREE.Mesh(geometry, material);
+                planet.castShadow = true;
+                planet.receiveShadow = true;
+                scene.add(planet);
+                setupLighting();
+                console.log('✅ Procedural planet created');
+            }
+
+            function setupLighting() {
+                // Ambient light
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+                scene.add(ambientLight);
+                
+                // Main directional light
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                directionalLight.position.set(5, 5, 5);
+                directionalLight.castShadow = true;
+                directionalLight.shadow.mapSize.width = 2048;
+                directionalLight.shadow.mapSize.height = 2048;
+                scene.add(directionalLight);
+                
+                // Secondary light
+                const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.3);
+                directionalLight2.position.set(-5, -3, 5);
+                scene.add(directionalLight2);
+                
+                // Point light for rim lighting
+                const pointLight = new THREE.PointLight(0xffffff, 0.5, 100);
+                pointLight.position.set(-5, -5, -5);
+                scene.add(pointLight);
+                
+                // Setup camera
+                camera.position.z = planetData.cameraDistance || 6;
+                
+                // Add orbit controls
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.enableZoom = true;
+                controls.minDistance = 3;
+                controls.maxDistance = 15;
+                controls.autoRotate = true;
+                controls.autoRotateSpeed = planetData.spinSpeed || 1;
+                
+                animate();
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                if (planet && !planetData.modelPath) {
+                    planet.rotation.y += 0.005;
+                }
+                
+                if (controls) {
+                    controls.update();
+                }
+                
+                renderer.render(scene, camera);
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+            });
+        }
+
+        // Earth comparison functionality
+        let comparisonMode = false;
+        let proximaComparisonScene, earthComparisonScene;
+
+        document.getElementById('compare-earth').addEventListener('click', () => {
+            comparisonMode = true;
+            document.getElementById('comparison-mode').style.display = 'flex';
+            initComparisonModels();
+        });
+
+        function closeComparison() {
+            comparisonMode = false;
+            document.getElementById('comparison-mode').style.display = 'none';
+            // Clean up comparison scenes
+            if (proximaComparisonScene) {
+                proximaComparisonScene.renderer.dispose();
+            }
+            if (earthComparisonScene) {
+                earthComparisonScene.renderer.dispose();
+            }
+        }
+
+        function initComparisonModels() {
+            // Initialize Proxima b comparison model
+            initComparisonModel('proxima-comparison-model', planetData.modelColor || 0x8fbc8f, 1.07); // 1.07x Earth radius
+            
+            // Initialize Earth comparison model
+            initComparisonModel('earth-comparison-model', 0x6b93d6, 1.0); // Earth blue color
+        }
+
+        function initComparisonModel(containerId, color, scale) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+
+            // Create planet
+            const geometry = new THREE.SphereGeometry(1.5 * scale, 32, 32);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: color,
+                shininess: 30,
+                specular: 0x111111
+            });
+            const planet = new THREE.Mesh(geometry, material);
+            scene.add(planet);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(3, 3, 3);
+            scene.add(directionalLight);
+
+            // Camera position
+            camera.position.z = 4;
+
+            // Animation
+            function animate() {
+                if (comparisonMode) {
+                    requestAnimationFrame(animate);
+                    planet.rotation.y += 0.01;
+                    renderer.render(scene, camera);
+                }
+            }
+            animate();
+
+            // Store scene data
+            if (containerId.includes('proxima')) {
+                proximaComparisonScene = { scene, camera, renderer };
+            } else {
+                earthComparisonScene = { scene, camera, renderer };
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init3DModel);
+    </script>
+</body>
+</html>

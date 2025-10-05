@@ -274,25 +274,136 @@
             id: "proxima-b",
             name: "Proxima b",
             tagline: "Closest exoplanet to Earth in the habitable zone",
-            image: "https://exoplanets.nasa.gov/system/resources/detail_files/250 proxima-b.jpg",
+            image: "images/proxima-b.jpg",
             description: "Proxima b is an exoplanet orbiting in the habitable zone of Proxima Centauri, the closest star to the Sun. It is one of the closest potentially habitable exoplanets to Earth, making it a prime target for future interstellar exploration.",
             radius: "1.07 x Earth",
             period: "11.2 days",
             modelPath: "models/Proxima_b_1_13776.glb", // Your GLB file path
             modelColor: 0x8fbc8f,
+            modelScale: 4.0, // Custom scale for Proxima b
             spinSpeed: 0.02 // Faster spin for hover effect
           },
           {
-            id: "kepler-186f",
-            name: "Kepler-186f",
+            id: "trappist-1-e",
+            name: "TRAPPIST-1 e",
+            tagline: "Closest exoplanet to Earth in the habitable zone",
+            image: "images/trappist-1-e.jpg",
+            description: "TRAPPIST-1 e is an exoplanet orbiting in the habitable zone of TRAPPIST-1, a star system with seven terrestrial planets. It is one of the closest potentially habitable exoplanets to Earth, making it a prime target for future interstellar exploration.",
+            radius: "0.92 x Earth",
+            period: "6.1 days",
+            modelPath: "models/kepler_22_b.glb", // Reusing Kepler-22 b model
+            modelColor: 0x008080, // Teal hue
+            spinSpeed: 0.02, // Faster spin for hover effect
+            modelScale: 4.0, // Custom scale for TRAPPIST-1 e
+            rotationY: -Math.PI / 4 // Rotate -45 degrees on Y-axis
+          },
+          {
+            id: "trappist-1-f",
+            name: "TRAPPIST-1 f",
+            tagline: "Closest exoplanet to Earth in the habitable zone",
+            image: "images/trappist-1-f.jpg",
+            description: "TRAPPIST-1 f is an exoplanet orbiting in the habitable zone of TRAPPIST-1, a star system with seven terrestrial planets. It is one of the closest potentially habitable exoplanets to Earth, making it a prime target for future interstellar exploration.",
+            radius: "0.92 x Earth",
+            period: "6.1 days",
+            modelPath: "models/trappist-1f.glb", // Your GLB file path
+            modelColor: 0x8fbc8f,
+            spinSpeed: 0.02, // Faster spin for hover effect
+            modelScale: 40.0 // Custom scale for TRAPPIST-1 f
+          },
+          {
+            id: "trappist-1-g",
+            name: "TRAPPIST-1 g",
+            tagline: "Potentially habitable exoplanet in the TRAPPIST-1 system",
+            image: "images/trappist-1-g.jpg",       
+            description: "TRAPPIST-1 g is an exoplanet orbiting in the habitable zone of TRAPPIST-1. It is considered one of the most promising candidates for habitability due to its size and orbital position.",
+            radius: "1.12 x Earth",
+            period: "12.4 days",
+            modelPath: "models/kepler_22_b.glb", // Reusing Kepler-22 b model
+            modelColor: 0x808080, // Purple hue
+            spinSpeed: 0.02, // Faster spin for hover effect
+            modelScale: 4.0, // Custom scale for TRAPPIST-1 g
+            rotationY: Math.PI / 4 // Rotate 45 degrees on Y-axis
+          },
+          {
+            id: "Kepler-186-e",
+            name: "Kepler-186-e",
             tagline: "First Earth-sized world in a habitable zone",
             image: "https://exoplanets.nasa.gov/system/resources/detail_files/100_kepler186f_artist_concept_2.jpg",
-            description: "Kepler-186f is the first validated Earth-size planet to orbit a distant star in the habitable zone—a range of distance from a star where liquid water might pool on the planet's surface. Its discovery confirms that planets the size of Earth exist in the habitable zones of other stars.",
-            radius: "1.17 x Earth",
-            period: "129.9 days",
-            modelPath: "kepler-186f.glb", // Add path to your GLB file
-            modelColor: 0x4a90e2,
-            spinSpeed: 0.01
+            description: "Kepler-186-e is the first validated Earth-size planet to orbit a distant star in the habitable zone—a range of distance from a star where liquid water might pool on the planet's surface. Its discovery confirms that planets the size of Earth exist in the habitable zones of other stars.",
+            radius: "0.92 x Earth",
+            period: "6.1 days",
+            modelPath: "models/Kepler-186-e.glb", // Your GLB file path
+            modelScale: 4.0,
+            modelColor: 0x8fbc8f,
+            spinSpeed: 0.02 // Faster spin for hover effect
+    
+          },
+          {
+            id: "Kepler-186-f",
+            name: "Kepler-186-f",
+            tagline: "First Earth-sized world in a habitable zone",
+            image: "https://exoplanets.nasa.gov/system/resources/detail_files/100_kepler186f_artist_concept_2.jpg",
+            description: "Kepler-186-e is the first validated Earth-size planet to orbit a distant star in the habitable zone—a range of distance from a star where liquid water might pool on the planet's surface. Its discovery confirms that planets the size of Earth exist in the habitable zones of other stars.",
+            radius: "0.92 x Earth",
+            period: "6.1 days",
+            modelPath: "models/Kepler-186f.glb", // Your GLB file path
+            modelScale: 4.0,
+            modelColor: 0x8fbc8f,
+            spinSpeed: 0.02 // Faster spin for hover effect
+          },
+          {
+            id: "Kepler-186-c",
+            name: "Kepler-186-c",
+            tagline: "Closest exoplanet to Earth in the habitable zone",
+            image: "images/kepler-186-c.jpg",
+            description: "Kepler-186-c is an exoplanet orbiting in the habitable zone of Kepler-186, a star system with seven terrestrial planets. It is one of the closest potentially habitable exoplanets to Earth, making it a prime target for future interstellar exploration.",
+            radius: "1.07 x Earth",
+            period: "11.2 days",
+            modelPath: "models/Kepler-186-e.glb", // Reusing Kepler-186-e model
+            modelColor: 0x4682b4, // SteelBlue hue
+            spinSpeed: 0.02, // Faster spin for hover effect
+            modelScale: 4.0, // Custom scale for Kepler-186-c
+            rotationY: Math.PI / 3 // Rotate 60 degrees on Y-axis
+          },
+          {
+            id: "TOI-700-d",
+            name: "TOI-700-d",
+            tagline: "Closest exoplanet to Earth in the habitable zone",
+            image: "images/TOI-700-d.jpg",
+            description: "TOI-700-d is an exoplanet orbiting in the habitable zone of TOI-700, a star system with seven terrestrial planets. It is one of the closest potentially habitable exoplanets to Earth, making it a prime target for future interstellar exploration.",
+            radius: "0.92 x Earth",
+            period: "6.1 days",
+            modelPath: "models/kepler_22_b.glb", // Reusing Kepler-22 b model
+            modelColor: 0xFF0000, // Teal hue
+            spinSpeed: 0.02, // Faster spin for hover effect
+            modelScale: 4.0, // Custom scale for TRAPPIST-1 e
+            rotationY: -Math.PI / 4 // Rotate -45 degrees on Y-axis
+          },
+
+          {
+            id: "Ross-128-b",
+            name: "Ross-128-b",
+            tagline: "First Earth-sized world in a habitable zone",
+            image: "https://exoplanets.nasa.gov/system/resources/detail_files/100_kepler186f_artist_concept_2.jpg",
+            description: "Kepler-186-e is the first validated Earth-size planet to orbit a distant star in the habitable zone—a range of distance from a star where liquid water might pool on the planet's surface. Its discovery confirms that planets the size of Earth exist in the habitable zones of other stars.",
+            radius: "0.92 x Earth",
+            period: "6.1 days",
+            modelPath: "models/Ross-128-b.glb", // Your GLB file path
+            modelColor: 0x8fbc8f,
+            modelScale: 0.40,
+            spinSpeed: 0.02 // Faster spin for hover effect
+          },
+          {
+            id: "Teegarden's Star b",
+            name: "Teegarden's Star b",
+            tagline: "First Earth-sized world in a habitable zone",
+            image: "https://exoplanets.nasa.gov/system/resources/detail_files/100_kepler186f_artist_concept_2.jpg",
+            description: "Kepler-186-e is the first validated Earth-size planet to orbit a distant star in the habitable zone—a range of distance from a star where liquid water might pool on the planet's surface. Its discovery confirms that planets the size of Earth exist in the habitable zones of other stars.",
+            radius: "0.92 x Earth",
+            period: "6.1 days",
+            modelPath: "models/Teegarden-star-b.glb", // Your GLB file path
+            modelColor: 0x8fbc8f,
+            spinSpeed: 0.02 // Faster spin for hover effect
           },
           {
             id: "trappist-1e",
@@ -381,7 +492,7 @@
                     
                     // Scale for card size - make it larger and more visible
                     const maxDim = Math.max(size.x, size.y, size.z);
-                    const scale = 2.5 / maxDim; // Larger scale for better visibility
+                    const scale = (planetData.modelScale || 2.5) / maxDim; // Use modelScale if provided, else default to 2.5
                     planet.scale.setScalar(scale);
                     
                     // Enable shadows on the planet mesh
@@ -389,8 +500,21 @@
                         if (child.isMesh) {
                             child.castShadow = true;
                             child.receiveShadow = true;
+                            if (child.material) {
+                                // Apply modelColor as a tint
+                                if (planetData.modelColor) {
+                                    child.material.color.setHex(planetData.modelColor);
+                                }
+                                child.material.side = THREE.FrontSide;
+                                child.material.needsUpdate = true;
+                            }
                         }
                     });
+                    
+                    // Set initial rotation
+                    planet.rotation.x = planetData.rotationX || 0;
+                    planet.rotation.y = planetData.rotationY || 0;
+                    planet.rotation.z = planetData.rotationZ || 0;
                     
                     console.log(`Card model scaled: ${planetData.name} - Scale: ${scale.toFixed(2)}`);
                   }
